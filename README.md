@@ -3,6 +3,7 @@
 ## Setup
 
 - npm init -y
+- npm i express
 - npm i -D typescript @types/express @types/node
 - npx tsc --init
 
