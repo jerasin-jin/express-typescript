@@ -2,10 +2,12 @@
 
 ## Setup
 
-- npm init -y
-- npm i express
-- npm i -D typescript @types/express @types/node
-- npx tsc --init
+```
+npm init -y
+npm i express
+npm i -D typescript @types/express @types/node
+npx tsc --init
+```
 
 ### change `tsconfig.json` By default, the value of this option is set to the project’s root. Change it to dist, as shown below
 ```
