@@ -48,6 +48,8 @@ npm i -D nodemon ts-node concurrently
 ## Run Command To Mirgate Schema
 ```
 npx prisma db push --schema custom/path/to/my/schema
+or
+npx prisma generate
 ```
 
 ## Tech
