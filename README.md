@@ -45,15 +45,25 @@ npm i -D nodemon ts-node concurrently
 }
 ```
 
-## Run Command To Mirgate Schema
+
+
+## Generate Schema For PrismaClient
 ```
-npx prisma db push --schema custom/path/to/my/schema
-or
 npx prisma generate
 ```
 
+## Run Command To Mirgate Schema
+```
+npx prisma db push --schema prisma/schema
+```
+
+## Create Migrate
+```
+npx prisma migrate dev
+```
+
 ## Tech
+
 - [node.js] - evented I/O for the backend
 - [Express] - fast node.js network app framework [@tjholowaychuk]
 - [Prisma] - orm for database
-

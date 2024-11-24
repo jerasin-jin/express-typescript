@@ -1,11 +1,17 @@
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String   @unique
-  firstName String?
-  lastName  String
-  age       Int
-  posts     Post[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             Int          @id @default(autoincrement())
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deleted        Boolean      @default(false)
+  email          String       @unique
+  password       String       @unique
+  firstName      String
+  lastName       String
+  age            Int
+  posts          Post[]
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId Int
+  role           Role         @relation(fields: [roleId], references: [id])
+  roleId         Int
 }

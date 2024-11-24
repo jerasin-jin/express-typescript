@@ -1,0 +1,10 @@
+model Permission {
+    id                Int                 @id @default(autoincrement())
+    isActive          Boolean             @default(true)
+    deleted           Boolean             @default(false)
+    createdAt         DateTime            @default(now())
+    updatedAt         DateTime            @updatedAt
+    module            String
+    action            String
+    RoleAndPermission RoleAndPermission[]
+}

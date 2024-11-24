@@ -1,5 +1,5 @@
 dev: destroy build up logs
-
+down: destroy
 
 build:
 	@COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build $(c)
@@ -9,3 +9,4 @@ up:
 	@docker-compose up -d $(c)
 logs:
 	@docker-compose logs --tail=100 -f $(c)
+

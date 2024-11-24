@@ -1,13 +1,8 @@
 import express, { Express, Request, Response } from "express";
-import test from "./routers/test/index";
-import user from "./routers/users/index";
+import { UserV1, AuthenV1, OrganizationV1 } from "./api/v1";
 import dotenv from "dotenv";
-import {
-  HttpException,
-  ErrorConst,
-  HttpStatus,
-  HandleHttpException,
-} from "./utils";
+import { HttpException, HttpStatus, HandleHttpException } from "./api/v1";
+import { initMaster } from "./api/v1/scripts";
 
 dotenv.config();
 
@@ -15,6 +10,7 @@ const app: Express = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
+
 
 app.get("/", (req: Request, res: Response) => {
   try {
@@ -26,9 +22,17 @@ app.get("/", (req: Request, res: Response) => {
   }
 });
 
-app.use("/test", test);
-app.use("/user", user);
+app.use("/v1/user", UserV1);
+app.use("/v1/auth", AuthenV1);
+app.use("/v1/organization", OrganizationV1);
 
+initMaster()
+  .then()
+  .catch((e) => {
+    console.log("initPermission error", e);
+  });
+
+  
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
 
