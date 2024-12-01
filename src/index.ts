@@ -1,8 +1,15 @@
 import express, { Express, Request, Response } from "express";
-import { UserV1, AuthenV1, OrganizationV1 } from "./api/v1";
+import {
+  UserRouteV1,
+  AuthenticationRouteV1,
+  OrganizationRouteV1,
+  RoleRouteV1,
+  PermissionRouteV1,
+} from "./api/v1";
 import dotenv from "dotenv";
-import { HttpException, HttpStatus, HandleHttpException } from "./api/v1";
+import { HttpException, HttpStatus } from "./api/v1";
 import { initMaster } from "./api/v1/scripts";
+import { HttpExceptionHandler } from "./api/v1/middleware";
 
 dotenv.config();
 
@@ -11,20 +18,23 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-
 app.get("/", (req: Request, res: Response) => {
-  try {
-    throw new HttpException({
-      statusCode: HttpStatus.ERROR,
-    });
-  } catch (e: unknown) {
-    HandleHttpException(res, e);
-  }
+  // throw new HttpException({
+  //   statusCode: HttpStatus.ERROR,
+  // });
+  res.json("HelloWorld");
 });
 
-app.use("/v1/user", UserV1);
-app.use("/v1/auth", AuthenV1);
-app.use("/v1/organization", OrganizationV1);
+app.use(
+  "/v1",
+  UserRouteV1,
+  AuthenticationRouteV1,
+  OrganizationRouteV1,
+  RoleRouteV1,
+  PermissionRouteV1
+);
+
+app.use(HttpExceptionHandler);
 
 initMaster()
   .then()
@@ -32,8 +42,20 @@ initMaster()
     console.log("initPermission error", e);
   });
 
-  
+function getAllRoutes() {
+  const routes: any = [];
+  app._router.stack.forEach((middleware: any) => {
+    if (middleware.route) {
+      const path = middleware.route.path;
+      const methods = Object.keys(middleware.route.methods);
+      routes.push({ path, methods });
+    }
+  });
+  return routes;
+}
+
 app.listen(port, () => {
+  console.log("test", getAllRoutes());
   console.log(`[server]: Server is running at http://localhost:${port}`);
 
   console.log(`[db_server]: ${JSON.stringify(process.env.DATABASE_URL)}`);

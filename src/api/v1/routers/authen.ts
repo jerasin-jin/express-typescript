@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { createUserController, loginController } from "../controllers";
+import { ExceptionGuard } from "../middleware";
+const prefix = "authen";
+export const AuthenticationRouteV1: Router = Router();
 
-export const AuthenV1: Router = Router();
-
-AuthenV1.route("/login").post(loginController);
-AuthenV1.route("/register").post(createUserController);
+AuthenticationRouteV1.route(`/${prefix}/login`).post(
+  ExceptionGuard(loginController)
+);
+AuthenticationRouteV1.route(`/${prefix}/register`).post(
+  ExceptionGuard(createUserController)
+);

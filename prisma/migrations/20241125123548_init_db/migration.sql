@@ -48,6 +48,9 @@ CREATE TABLE `Role` (
 
 -- CreateTable
 CREATE TABLE `RoleAndPermission` (
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
     `roleId` INTEGER NOT NULL,
     `permissionId` INTEGER NOT NULL,
 
@@ -67,9 +70,11 @@ CREATE TABLE `User` (
     `lastName` VARCHAR(191) NOT NULL,
     `age` INTEGER NOT NULL,
     `organizationId` INTEGER NOT NULL,
+    `roleId` INTEGER NOT NULL,
 
     UNIQUE INDEX `User_email_key`(`email`),
     UNIQUE INDEX `User_password_key`(`password`),
+    UNIQUE INDEX `User_firstName_lastName_key`(`firstName`, `lastName`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -84,3 +89,6 @@ ALTER TABLE `RoleAndPermission` ADD CONSTRAINT `RoleAndPermission_permissionId_f
 
 -- AddForeignKey
 ALTER TABLE `User` ADD CONSTRAINT `User_organizationId_fkey` FOREIGN KEY (`organizationId`) REFERENCES `Organization`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `User` ADD CONSTRAINT `User_roleId_fkey` FOREIGN KEY (`roleId`) REFERENCES `Role`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

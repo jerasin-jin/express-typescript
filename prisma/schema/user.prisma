@@ -14,4 +14,6 @@ model User {
   organizationId Int
   role           Role         @relation(fields: [roleId], references: [id])
   roleId         Int
+
+  @@unique([firstName, lastName])
 }

@@ -5,3 +5,10 @@ export enum PermissionAction {
   DELETE = "delete",
   TEST = "test",
 }
+
+export enum PermissionModule {
+  USER = "user",
+  ORGANIZATION = "organization",
+  ROLE = "role",
+  PERMISSION = "permission"
+}

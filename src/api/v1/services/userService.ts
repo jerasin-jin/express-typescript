@@ -11,7 +11,15 @@ import {
 dotenv.config();
 
 export const paginationUser = async (query: Pagination<User>) => {
-  return prisma.user.pagination(query);
+  const total = await prisma.user.countData({ where: query.where ?? {} });
+  const data = await prisma.user.pagination(query);
+
+  return {
+    page: query.page,
+    pageSize: query.pageSize,
+    data,
+    total,
+  };
 };
 
 export const findOneUser = async (
@@ -31,7 +39,18 @@ export const findOneUser = async (
 
 export const createUser = async (body: User) => {
   return prisma.$transaction(async (tx) => {
-    const user = await tx.user.findFirst({ where: { email: body.email } });
+    const user = await tx.user.findFirst({
+      where: {
+        OR: [
+          {
+            email: body.email,
+          },
+          {
+            AND: [{ firstName: body.firstName }, { lastName: body.lastName }],
+          },
+        ],
+      },
+    });
 
     if (user != null) {
       throw new HttpException({ statusCode: 400, message: "User Is Exists" });

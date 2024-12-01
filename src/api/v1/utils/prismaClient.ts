@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, User } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 export interface BuildQuery<T> {
   where?: Prisma.Args<T, "findMany">["where"];
@@ -48,19 +48,5 @@ export const prisma = new PrismaClient().$extends({
         return (context as any).count({ ...buildQuery, where });
       },
     },
-    // user: {
-    //   async findOne(where: Partial<User>) {
-    //     const query: Partial<User> = { ...where, deleted: false };
-
-    //     console.log("query", query);
-    //     return prisma.user.findFirst({ where: query });
-    //   },
-    //   async find(where: Partial<User>) {
-    //     const query: Partial<User> = { ...where, deleted: false };
-
-    //     console.log("query", query);
-    //     return prisma.user.findMany({ where: query });
-    //   },
-    // },
   },
 });

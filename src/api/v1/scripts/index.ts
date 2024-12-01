@@ -1,33 +1,47 @@
-import { prisma } from "../utils";
+import { PermissionModule, prisma } from "../utils";
 
 export const initPermission = async () => {
-  const data: any = [
+  const data: any[] = [
     {
-      module: "user",
       action: "view",
     },
     {
-      module: "user",
       action: "create",
     },
     {
-      module: "user",
       action: "edit",
     },
     {
-      module: "user",
       action: "delete",
     },
   ];
 
+  const mapping: any = [];
+  const modules = [];
+  for (let [key, value] of Object.entries(PermissionModule)) {
+    console.log(`${key}: ${value}`);
+    data.forEach((i) => {
+      mapping.push({
+        action: i.action,
+        module: value,
+      });
+    });
+
+    modules.push(value);
+  }
+
+  console.log("modules", modules);
+
   const permissions = await prisma.permission.findMany({
     where: {
-      module: "user",
+      module: {
+        in: modules,
+      },
     },
   });
 
   if (permissions.length === 0) {
-    prisma.permission.createMany({ data });
+    await prisma.permission.createMany({ data: mapping });
   }
 };
 
@@ -43,7 +57,7 @@ export const initRole = async () => {
   });
 
   if (permissions.length === 0) {
-    prisma.role.createMany({ data });
+    await prisma.role.createMany({ data });
   }
 };
 

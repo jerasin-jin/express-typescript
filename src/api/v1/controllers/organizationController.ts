@@ -1,55 +1,63 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
+import validate from "../validate";
+import { OrganizationRequest, ParamId } from "../dto";
 import {
-  HandleHttpException,
-  Pagination,
-  prisma,
-  ValidationSchema,
-} from "../utils";
-import { OrganizationRequest, PaginationSchema } from "../dto";
-import { createOrganization, paginationOrganization } from "../services";
-import { Organization } from "@prisma/client";
+  buildQueryPagination,
+  createOrganization,
+  deleteOrganization,
+  findOneOrganization,
+  paginationOrganization,
+} from "../services";
+import { responseHandler } from "../utils";
 
-export const organizationControllerInit = async (
+export const createOrganizationControllerInit = async (
   req: Request,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) => {
-  try {
-    const body = ValidationSchema(res, OrganizationRequest, req.body);
-    const user = await createOrganization(body);
-    res.json({ token: user });
-  } catch (e: unknown) {
-    HandleHttpException(res, e);
-  }
+  const body = validate.validationSchema(OrganizationRequest, req.body);
+  const organization = await createOrganization(body);
+  return responseHandler(res, { data: organization });
 };
 
 export const getAllOrganizationsController = async (
   req: Request,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) => {
-  try {
-    console.log("token", req.token);
-    const querySchema = ValidationSchema(res, PaginationSchema, req.query);
-    const { page, pageSize, sortField, sortValue } = querySchema;
-    const query: Pagination<Organization> = {
-      page,
-      pageSize,
-      sortField,
-      sortValue,
-      // select: UserResponse,
-    };
-    const organization = await paginationOrganization(query);
-    const total = await prisma.organization.countData({});
+  const response = await paginationOrganization(buildQueryPagination(req));
+  return responseHandler(res, { data: response });
+};
 
-    const response = {
-      page,
-      pageSize,
-      data: organization,
-      total,
-    };
-    res.json(response);
-  } catch (e: unknown) {
-    HandleHttpException(res, e);
-  }
+export const getOrganizationDetailController = async (
+  req: Request,
+  res: Response
+) => {
+  const params = validate.validationSchema(ParamId, req.params);
+  const organization = await findOneOrganization({
+    where: { id: params.id },
+    select: {
+      id: true,
+      name: true,
+      isActive: true,
+    },
+  });
+
+  return responseHandler(res, { data: organization });
+};
+
+export const createOrganizationController = async (
+  req: Request,
+  res: Response
+) => {
+  const body = validate.validationSchema(OrganizationRequest, req.body);
+  const organization = await createOrganization(body);
+  return responseHandler(res, { data: organization });
+};
+
+export const deleteOrganizationController = async (
+  req: Request,
+  res: Response
+) => {
+  const params = validate.validationSchema(ParamId, req.params);
+  await deleteOrganization(params.id);
+  return responseHandler(res);
 };

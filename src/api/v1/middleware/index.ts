@@ -1,6 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { Secret, JwtPayload } from "jsonwebtoken";
-import { HttpException, HttpStatus, prisma } from "../utils";
+import {
+  HttpException,
+  HttpExceptionInterface,
+  HttpStatus,
+  prisma,
+  responseHandler,
+} from "../utils";
 
 const SECRET_KEY: Secret = process.env.JWT_SECRET ?? "d";
 
@@ -48,6 +54,8 @@ interface JwtMiddlewareOptions {
 
 export const JwtMiddlewareV2 = (options: JwtMiddlewareOptions) => {
   return (req: Request, res: Response, next: NextFunction) => {
+    const { moduleName, action } = options ?? {};
+
     try {
       const token = req.header("Authorization")?.replace("Bearer ", "");
 
@@ -63,14 +71,12 @@ export const JwtMiddlewareV2 = (options: JwtMiddlewareOptions) => {
       });
       (req as any).token = decoded;
 
-      console.log(
-        `Module Name: ${options.moduleName} & Action Name: ${options.action}`
-      );
+      console.log(`Module Name: ${moduleName} & Action Name: ${action}`);
       console.log(`decoded: ${JSON.stringify(decoded.permissions)}`);
       console.log("Before Next In JwtMiddleware");
 
       const checkPermission = decoded?.permissions?.find(
-        (i: PermissionToken) => (i.module == options.moduleName && i.action == options.action)
+        (i: PermissionToken) => i.module == moduleName && i.action == action
       );
 
       console.log("checkPermission", checkPermission);
@@ -90,4 +96,42 @@ export const JwtMiddlewareV2 = (options: JwtMiddlewareOptions) => {
         .json({ messageCode: "UNAUTHORIZED", message: "UnAuthorized" });
     }
   };
+};
+
+export const ExceptionGuard =
+  (controller: any) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      console.log("ExceptionHandler try");
+      await controller(req, res);
+    } catch (error) {
+      console.log("ExceptionHandler catch");
+      return next(error);
+    }
+  };
+
+export const HttpExceptionHandler = (
+  error: HttpException,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log(`Function ExceptionHandler = ${error}`);
+
+  if (error != null) {
+    const { statusCode, message, messageCode, schema } = error ?? {};
+    let response: Partial<HttpExceptionInterface> = {
+      messageCode,
+      message,
+      schema,
+    };
+
+    if (schema != null) {
+      response.schema = schema;
+    }
+
+    return responseHandler(res, { message, messageCode, statusCode });
+  }
+
+  next();
 };

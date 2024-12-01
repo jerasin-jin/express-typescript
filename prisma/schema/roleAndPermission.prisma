@@ -1,4 +1,8 @@
 model RoleAndPermission {
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    deleted   Boolean  @default(false)
+
     role         Role       @relation(fields: [roleId], references: [id])
     roleId       Int
     permission   Permission @relation(fields: [permissionId], references: [id])

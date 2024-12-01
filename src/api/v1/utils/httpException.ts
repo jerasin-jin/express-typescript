@@ -1,7 +1,5 @@
 import { Response } from "express";
 
-export type ErrorConst = "NOT_FOUND" | "BAD_REQUEST" | "ERROR";
-
 export enum HttpStatus {
   BAD_REQUEST = 400,
   NOT_FOUND = 404,
@@ -10,7 +8,7 @@ export enum HttpStatus {
   ERROR = 500,
 }
 
-interface HttpExceptionInterface {
+export interface HttpExceptionInterface {
   statusCode: HttpStatus;
   message?: string;
   messageCode?: string;
@@ -78,22 +76,3 @@ export class HttpException extends Error {
   }
 }
 
-export const HandleHttpException = (res: Response, error: unknown) => {
-  if (error instanceof HttpException) {
-    const { statusCode, message, messageCode,schema } = error ?? {};
-    let response:Partial<HttpExceptionInterface> = {
-      messageCode, message,schema
-    }
-
-    if(schema != null){
-      response.schema = schema
-    }
-
-    res.status(statusCode).json(response);
-  } else {
-    console.log("error", error);
-    res
-      .status(500)
-      .json({ message: "Unknown Type Error", detail: JSON.stringify(error) });
-  }
-};

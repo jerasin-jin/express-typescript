@@ -1,5 +1,11 @@
 import { Organization } from "@prisma/client";
-import { HttpException, HttpStatus, Pagination, prisma } from "../utils";
+import {
+  BuildQuery,
+  HttpException,
+  HttpStatus,
+  Pagination,
+  prisma,
+} from "../utils";
 
 export const createOrganization = async (body: Organization) => {
   return prisma.$transaction(async (tx) => {
@@ -18,13 +24,15 @@ export const createOrganization = async (body: Organization) => {
   });
 };
 
-export const findOneOrganization = async (user: Partial<Organization>) => {
-  const data = await prisma.organization.findOne({ where: user });
+export const findOneOrganization = async (
+  buildQuery: BuildQuery<Organization>
+) => {
+  const data = await prisma.organization.findOne(buildQuery);
 
   if (data == null) {
     throw new HttpException({
       statusCode: HttpStatus.NOT_FOUND,
-      schema: "user",
+      schema: "organization",
     });
   }
 
@@ -35,4 +43,20 @@ export const paginationOrganization = async (
   query: Pagination<Organization>
 ) => {
   return prisma.organization.pagination(query);
+};
+
+export const deleteOrganization = async (id: number) => {
+  return prisma.$transaction(async (tx) => {
+    const organization = await tx.organization.findFirst({ where: { id } });
+
+    if (organization == null) {
+      throw new HttpException({ statusCode: HttpStatus.NOT_FOUND });
+    }
+
+    const body = {
+      deleted: true,
+    };
+
+    return tx.organization.update({ where: { id }, data: body });
+  });
 };
